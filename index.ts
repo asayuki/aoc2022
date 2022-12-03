@@ -37,7 +37,7 @@ if (day && !dirs.includes(`d-${day}`)) {
     process.exit();
 }
 
-dirs.map((dir: string) => {
+dirs.sort().map((dir: string) => {
     if (typeof day !== 'undefined' && dir !== `d-${day}`) {
         return;
     }
