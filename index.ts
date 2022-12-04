@@ -44,6 +44,5 @@ dirs.sort().map((dir: string) => {
 
     const { stdout: title } = spawnSync(['cat', `./${dir}/title.txt`]);
     const { stdout: output } = spawnSync(['bun', 'run', `./${dir}/index.ts`]);
-    console.log(title.toString());
-    console.log(output.toString());
+    console.log(`${title.toString()}\n${output.toString()}`);
 });
