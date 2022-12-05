@@ -1,40 +1,40 @@
 const rearrangements = await Bun.file('resources/d-5/rearrangements.txt').text();
 
-// TODO: Maybe parse from textfile aswell??1!11!?
-const crates = [
-    ['B', 'W', 'N'],
-    ['L', 'Z', 'S', 'P', 'T', 'D', 'M', 'B'],
-    ['Q', 'H', 'Z', 'W', 'R'],
-    ['W', 'D', 'V', 'J', 'Z', 'R'],
-    ['S', 'H', 'M', 'B'],
-    ['L', 'G', 'N', 'J', 'H', 'V', 'P', 'B'],
-    ['J', 'Q', 'Z', 'F', 'H', 'D', 'L', 'S'],
-    ['W', 'S', 'F', 'J', 'G', 'Q', 'B'],
-    ['Z', 'W', 'M', 'S', 'C', 'D', 'J'],
-];
+function parseStacks(stacks: string): Array<Array<string>> {
+    let crates;
+    stacks.replace(/\[|\]/g, ' ').split(/\n/).forEach((l, i, s) => {
+        if (i === 0) {
+            crates = Array.apply(null, Array(s.length)).map(() => []);
+        }
 
-const solution1 = JSON.parse(JSON.stringify(crates.slice()));
-const solution2 = JSON.parse(JSON.stringify(crates.slice()));
+        if (i < s.length - 1) {
+            const r = l.slice(1).slice(0, -1).match(/.{1,4}/g) ?? [];
+            r.forEach((c, i2) => c.trim() !== '' ? crates[i2].unshift(c.trim()) : null);
+        }
+    });
 
-rearrangements.split(/\n/).forEach((move) => {
-    const newMove = move.split(' ').filter((m, i) => [1, 3, 5].includes(i) ? m : null).map(Number).map((n, i) => [1, 2].includes(i) ? n - 1 : n);
-    const moving = solution1[newMove[1]].splice(solution1[newMove[1]].length - newMove[0], solution1[newMove[1]].length);
-    solution1[newMove[2]] = [...solution1[newMove[2]], ...moving.reverse()];
+    return crates;
+}
 
-    const moving2 = solution2[newMove[1]].splice(solution2[newMove[1]].length - newMove[0], solution2[newMove[1]].length);
-    solution2[newMove[2]] = [...solution2[newMove[2]], ...moving2];
-});
+function followInstructions(instructions: string, crates: Array<Array<string>>, moveMultipleCrates: boolean = false): string {
+    let output = '';
+    instructions.split(/\n/).forEach((instruction) => {
+        const move = instruction.split(' ').filter((m, i) => [1, 3, 5].includes(i) ? m : null).map(Number).map((n, i) => [1, 2].includes(i) ? n - 1 : n);
+        const moving = crates[move[1]].splice(crates[move[1]].length - move[0], crates[move[1]].length);
+        crates[move[2]] = [...crates[move[2]], ...(moveMultipleCrates ? moving : moving.reverse())];
+    });
+    crates.forEach((s) => output += s.pop());
+    return output;
+}
 
+const [stacks, instructions] = rearrangements.split(/\n\n/);
 
-let output1 = '';
-let output2 = '';
-
-solution1.forEach((s) => output1 += s.pop());
-solution2.forEach((s) => output2 += s.pop());
+const solution1 = followInstructions(instructions, parseStacks(stacks));
+const solution2 = followInstructions(instructions, parseStacks(stacks), true);
 
 console.log(`
-    1: ${output1}
-    2: ${output2}
+    1: ${solution1}
+    2: ${solution2}
 `);
 
 export {};
