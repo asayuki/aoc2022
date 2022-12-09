@@ -32,16 +32,14 @@ class Knot {
         const x = follow.x - this.x;
         const y = follow.y - this.y;
 
-        if (Math.abs(x) <= 1 && Math.abs(y) <= 1) {
-            return;
+        if (Math.abs(x) > 1 || Math.abs(y) > 1) {
+            this.x += Math.abs(x) > 0 ? x / Math.abs(x) : 0;
+            this.y += Math.abs(y) > 0 ? y / Math.abs(y) : 0;
         }
-
-        this.x += Math.abs(x) > 0 ? x / Math.abs(x) : 0;
-        this.y += Math.abs(y) > 0 ? y / Math.abs(y) : 0;
     }
 }
 
-function countTailPositions(knotLength: number = 2) {
+function countTailPositions(knotLength: number = 2): number {
     const visited = ['0.0'];
     const knots = [];
 
