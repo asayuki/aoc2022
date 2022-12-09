@@ -1,4 +1,5 @@
 const movements = await Bun.file('resources/d-9/movements.txt').text();
+const MOVES = {'L': -1, 'R': 1, 'D': -1, 'U': 1};
 
 class Knot {
     x: number;
@@ -10,21 +11,11 @@ class Knot {
     }
 
     move(direction: String) {
-        switch (direction) {
-            case 'R':
-                this.x += 1;
-                break;
-            case 'U':
-                this.y += 1;
-                break;
-            case 'L':
-                this.x -= 1;
-                break;
-            case 'D':
-                this.y -= 1;
-                break;
-            default:
-                break;
+        if (['U', 'D'].includes(direction.toString())) {
+            this.y += MOVES[direction.toString()];
+        }
+        if (['L', 'R'].includes(direction.toString())) {
+            this.x += MOVES[direction.toString()];
         }
     }
 
