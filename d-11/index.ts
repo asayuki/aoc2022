@@ -1,11 +1,14 @@
-import { prod, evaluate } from 'mathjs'
+var evaluate = {
+    '+': (x, y) => x + y,
+    '*': (x, y) => x * y,
+};
 
 const monkeysInput = await Bun.file('resources/d-11/monkeys.txt').text();
 
 class Monkey {
     items: Array<number>;
     inspected: number;
-    operation: string;
+    operation: Array<string>;
     test: number;
     monkeyTrue: number;
     monkeyFalse: number;
@@ -14,7 +17,7 @@ class Monkey {
         const [, items, operation, test, monkeyTrue, monkeyFalse] = about.split(/\n/);
         this.items = [...items.matchAll(/\d+/g)].map((num) => +num);
         this.inspected = 0;
-        this.operation = operation.split(': ')[1].split('= ')[1];
+        this.operation = operation.split(': ')[1].split('= ')[1].split(' ');
         this.test = +test.match(/\d+/g).pop();
         this.monkeyTrue = +monkeyTrue.match(/\d+/g).pop();
         this.monkeyFalse = +monkeyFalse.match(/\d+/g).pop();
@@ -22,13 +25,14 @@ class Monkey {
 
     inspectItems(monkeys: Array<Monkey>, stressedOut: boolean): void {
         const itemsToInspect = this.items.length;
+        const reliefValue = stressedOut ? monkeys.reduce((tot, monkey) => tot === 0 ? monkey.test : tot * monkey.test, 0) : 3;
         for (let i = 0; i < itemsToInspect; i+= 1) {
             const item = this.items.shift();
             let relief = 0;
             if (stressedOut) {
-                relief = Math.floor(evaluate(this.operation.replaceAll('old', `${item}`)) % prod(monkeys.map((monkey) => monkey.test)));
+                relief = Math.floor(evaluate[this.operation[1]](+this.operation[0].replace('old', `${item}`), +this.operation[2].replace('old', `${item}`)) % reliefValue);
             } else {
-                relief = Math.floor(evaluate(this.operation.replaceAll('old', `${item}`)) / 3);
+                relief = Math.floor(evaluate[this.operation[1]](+this.operation[0].replace('old', `${item}`), +this.operation[2].replace('old', `${item}`)) / reliefValue);
             }
             this.inspected += 1;
             monkeys[relief % this.test === 0 ? this.monkeyTrue : this.monkeyFalse].items.push(relief);
@@ -55,7 +59,7 @@ const sum2 = monkeyBusiness(monkeysInput.split(/\n\n/), 10000, true);
 
 console.log(`
     1: ${sum1}
-    2: ${sum2};
+    2: ${sum2}
 `);
 
 export {}
